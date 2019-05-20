@@ -133,6 +133,16 @@ namespace Papeleria
             tv_categories.CheckBoxes = true;
             checkCategories(dic);
         }
+        private void checkCategories(Dictionary<int, TreeNode> d)
+        {
+            //Marca las casillas de Home y de Libros al iniciar la pantalla
+            TreeNode home, libros;
+            d.TryGetValue(2, out home);
+            d.TryGetValue(4, out libros);
+            home.Checked = true;
+            libros.Checked = true;
+        }
+
 
         private void createProduct()
         {
@@ -305,44 +315,17 @@ namespace Papeleria
             setCantidad();
             setImagenes();
         }
-
-
-
-
-
-        private void updListaImagenes()
-        {
-            lb_imagenes.Items.Clear();
-            foreach (String each in imagenes)
-            {
-                lb_imagenes.Items.Add(each);
-            }
-
-        }
-
+        
         private Boolean checkFields()
         {
             return true;
         }
-
-
-
-
-        private void checkCategories(Dictionary<int, TreeNode> d)
-        {
-            //Marca las casillas de Home y de Libros al iniciar la pantalla
-            TreeNode home, libros;
-            d.TryGetValue(2, out home);
-            d.TryGetValue(4, out libros);
-            home.Checked = true;
-            libros.Checked = true;
-        }
-
         private void cb_idioma_SelectedIndexChanged(object sender, EventArgs e)
         {
 
         } //TODO
 
+        //Imagenes
         private void btn_add_product(object sender, EventArgs e)
         {
             if (checkFields())
@@ -386,7 +369,17 @@ namespace Papeleria
                 updListaImagenes();
             }
         }
+        private void updListaImagenes()
+        {
+            lb_imagenes.Items.Clear();
+            foreach (String each in imagenes)
+            {
+                lb_imagenes.Items.Add(each);
+            }
 
+        }
+
+        //FakeData
         private void btn_fakedata(object sender, EventArgs e)
         {
             txt_nombre.Text = "Nombre de prueba";
@@ -396,6 +389,8 @@ namespace Papeleria
             txt_isbn.Text = "1234567890123";
             rtxt_descripcion.Text = "Parrafo1.\nParrafo2";
         }
+
+        //Aux methods
         public void getCheckedNodes(TreeNodeCollection nodes)
         {
             foreach (TreeNode aNode in nodes)
