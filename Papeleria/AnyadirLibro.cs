@@ -9,7 +9,6 @@ namespace Papeleria
     public partial class AnyadirLibro : Form
     {
         
-
         const string BASEURL = "http://papeleriamaribel.com/api";
         const string PASS = "";
 
@@ -283,24 +282,7 @@ namespace Papeleria
         {
             getCheckedNodes(tv_categories.Nodes);
             producto.id_category_default = 4;
-            producto.associations.categories.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.category(2));
-        }
-
-        public void getCheckedNodes(TreeNodeCollection nodes)
-        {
-            foreach (TreeNode aNode in nodes)
-            {
-                //edit
-                if (aNode.Checked)
-                {
-                    string substring = aNode.Text.Substring(0, 1);
-                    long id = long.Parse(substring);
-                    checkedCategories.Add(id);
-                    producto.associations.categories.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.category(id));
-                }
-                if (aNode.Nodes.Count != 0)
-                    getCheckedNodes(aNode.Nodes);
-            }
+            //producto.associations.categories.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.category(2));
         }
 
 
@@ -310,7 +292,6 @@ namespace Papeleria
             string descripcion = mejoraNombre(rtxt_descripcion.Text);
             producto.description_short.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.language((long)3, descripcion));
         }
-
         private void setImagenes()
         {
             foreach (String url in imagenes)
@@ -327,29 +308,7 @@ namespace Papeleria
 
 
 
-        private string mejoraNombre(String n)
-        {
-            string primera = "" + n[0];
-            primera = primera.ToUpper();
-            return primera + n.Substring(1);
-        }
 
-        private double convierteStringADouble(String leido)
-        {
-            double precio = 0;
-            leido = leido.Replace('.', ',');
-            try
-            {
-                precio = Double.Parse(leido);
-            }
-            catch (FormatException fe)
-            {
-                Console.Write("Error en convierteStringADouble: " + fe.Message);
-                return -1;
-
-            }
-            return precio;
-        }
 
         private void updListaImagenes()
         {
@@ -366,8 +325,12 @@ namespace Papeleria
             return true;
         }
 
+
+
+
         private void checkCategories(Dictionary<int, TreeNode> d)
         {
+            //Marca las casillas de Home y de Libros al iniciar la pantalla
             TreeNode home, libros;
             d.TryGetValue(2, out home);
             d.TryGetValue(4, out libros);
@@ -378,7 +341,7 @@ namespace Papeleria
         private void cb_idioma_SelectedIndexChanged(object sender, EventArgs e)
         {
 
-        }
+        } //TODO
 
         private void btn_add_product(object sender, EventArgs e)
         {
@@ -389,18 +352,7 @@ namespace Papeleria
                 updateProduct();
 
             }
-        }
-
-        private void btn_fakedata(object sender, EventArgs e)
-        {
-            txt_nombre.Text = "Nombre de prueba";
-            txt_cantidad.Text = "1";
-            txt_isbn.Text = "";
-            txt_precio.Text = "9.95";
-            txt_isbn.Text = "1234567890123";
-            rtxt_descripcion.Text = "Parrafo1.\nParrafo2";
-        }
-
+        }    
         private void btn_add_img(object sender, EventArgs e)
         {
 
@@ -423,7 +375,6 @@ namespace Papeleria
             }
 
         }
-
         private void btn_del_img(object sender, EventArgs e)
         {
             if (lb_imagenes.SelectedItems != null)
@@ -435,5 +386,54 @@ namespace Papeleria
                 updListaImagenes();
             }
         }
+
+        private void btn_fakedata(object sender, EventArgs e)
+        {
+            txt_nombre.Text = "Nombre de prueba";
+            txt_cantidad.Text = "1";
+            txt_isbn.Text = "";
+            txt_precio.Text = "9.95";
+            txt_isbn.Text = "1234567890123";
+            rtxt_descripcion.Text = "Parrafo1.\nParrafo2";
+        }
+        public void getCheckedNodes(TreeNodeCollection nodes)
+        {
+            foreach (TreeNode aNode in nodes)
+            {
+                //edit
+                if (aNode.Checked)
+                {
+                    string substring = aNode.Text.Substring(0, 1);
+                    long id = long.Parse(substring);
+                    checkedCategories.Add(id);
+                    producto.associations.categories.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.category(id));
+                }
+                if (aNode.Nodes.Count != 0)
+                    getCheckedNodes(aNode.Nodes);
+            }
+        }
+        private string mejoraNombre(String n)
+        {
+            string primera = "" + n[0];
+            primera = primera.ToUpper();
+            return primera + n.Substring(1);
+        }
+        private double convierteStringADouble(String leido)
+        {
+            double precio = 0;
+            leido = leido.Replace('.', ',');
+            try
+            {
+                precio = Double.Parse(leido);
+            }
+            catch (FormatException fe)
+            {
+                Console.Write("Error en convierteStringADouble: " + fe.Message);
+                return -1;
+
+            }
+            return precio;
+        }
+
     }
 }
