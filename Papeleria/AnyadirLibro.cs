@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using Bukimedia.PrestaSharp.Entities;
 using Bukimedia.PrestaSharp.Factories;
+using System.Diagnostics;
+
 
 namespace Papeleria
 {
@@ -20,7 +22,7 @@ namespace Papeleria
 
         product producto;
 
-        List<String> imagenes;
+        List<String> imagenes, defCategories;
         List<long> checkedCategories;
         Dictionary<int, TreeNode> dic;
 
@@ -29,7 +31,6 @@ namespace Papeleria
         public AnyadirLibro()
         {
             InitializeComponent();
-
             saf = new StockAvailableFactory(BASEURL, KEYStocks, PASS);
             pf = new ProductFactory(BASEURL, KEYProds, PASS);
             pfvf = new ProductFeatureValueFactory(BASEURL, KEYFeaturesValues, PASS);
@@ -39,6 +40,7 @@ namespace Papeleria
 
             imagenes = new List<String>();
             checkedCategories = new List<long>();
+            defCategories = new List<String>();
 
             fill();
         }
@@ -132,6 +134,7 @@ namespace Papeleria
             tv_categories.ExpandAll();
             tv_categories.CheckBoxes = true;
             checkCategories(dic);
+            Debug.WriteLine("DIC: " + dic.ToString());
         }
         private void checkCategories(Dictionary<int, TreeNode> d)
         {
@@ -290,9 +293,16 @@ namespace Papeleria
 
         private void setCategorias()
         {
-            getCheckedNodes(tv_categories.Nodes);
-            producto.id_category_default = 4;
+            //getCheckedNodes(tv_categories.Nodes);
+            //checkedCategories.Sort();
+            //producto.id_category_default = checkedCategories[checkedCategories.Count-1];
             //producto.associations.categories.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.category(2));
+            foreach(long cat in checkedCategories)
+            {
+                producto.associations.categories.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.category(cat));
+            }
+            producto.id_category_default = Int64.Parse(cb_categoria.Text.Substring(0, 2));
+
         }
 
 
@@ -308,14 +318,12 @@ namespace Papeleria
             {
                 imageFactory.AddProductImage((long)producto.id, url);
             }
-        }
-
+        }   
         private void updateProduct()
         {
             setCantidad();
             setImagenes();
-        }
-        
+        }  
         private Boolean checkFields()
         {
             return true;
@@ -333,6 +341,8 @@ namespace Papeleria
                 createProduct();
                 pf.Add(producto);
                 updateProduct();
+                System.Windows.Forms.MessageBox.Show("¡Producto subido!");
+
 
             }
         }    
@@ -379,16 +389,28 @@ namespace Papeleria
 
         }
 
-        //FakeData
-        private void btn_fakedata(object sender, EventArgs e)
+        private void tv_categories_AfterCheck(object sender, TreeViewEventArgs e)
         {
-            txt_nombre.Text = "Nombre de prueba";
-            txt_cantidad.Text = "1";
-            txt_isbn.Text = "";
-            txt_precio.Text = "9.95";
-            txt_isbn.Text = "1234567890123";
-            rtxt_descripcion.Text = "Parrafo1.\nParrafo2";
+            String txt = e.Node.Text;
+            long id = Int64.Parse(txt.Substring(0, 2));
+            if (e.Node.Checked)
+            {
+
+                checkedCategories.Add(id);
+                defCategories.Add(txt);
+            } else
+            {
+                checkedCategories.Remove(id);
+                defCategories.Remove(txt);
+
+            }
+            cb_categoria.DataSource = null;
+            cb_categoria.DataSource = defCategories;
+            cb_categoria.SelectedIndex = cb_categoria.Items.Count - 1;
+            
+
         }
+
 
         //Aux methods
         public void getCheckedNodes(TreeNodeCollection nodes)
@@ -398,10 +420,9 @@ namespace Papeleria
                 //edit
                 if (aNode.Checked)
                 {
-                    string substring = aNode.Text.Substring(0, 1);
-                    long id = long.Parse(substring);
-                    checkedCategories.Add(id);
-                    producto.associations.categories.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.category(id));
+                    
+                    
+                    //producto.associations.categories.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.category(id));
                 }
                 if (aNode.Nodes.Count != 0)
                     getCheckedNodes(aNode.Nodes);
@@ -429,6 +450,15 @@ namespace Papeleria
             }
             return precio;
         }
-
+        //FakeData
+        private void btn_fakedata(object sender, EventArgs e)
+        {
+            txt_nombre.Text = "Nombre de prueba";
+            txt_cantidad.Text = "1";
+            txt_isbn.Text = "";
+            txt_precio.Text = "9.95";
+            txt_isbn.Text = "1234567890123";
+            rtxt_descripcion.Text = "Parrafo1.\nParrafo2";
+        }
     }
 }

@@ -54,6 +54,8 @@
             this.btn_eliminar = new System.Windows.Forms.Button();
             this.btn_anyadirImagen = new System.Windows.Forms.Button();
             this.tv_categories = new System.Windows.Forms.TreeView();
+            this.label3 = new System.Windows.Forms.Label();
+            this.cb_categoria = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // label15
@@ -278,14 +280,34 @@
             // 
             this.tv_categories.Location = new System.Drawing.Point(30, 64);
             this.tv_categories.Name = "tv_categories";
-            this.tv_categories.Size = new System.Drawing.Size(180, 294);
+            this.tv_categories.Size = new System.Drawing.Size(180, 247);
             this.tv_categories.TabIndex = 110;
+            this.tv_categories.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.tv_categories_AfterCheck);
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(37, 321);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(114, 13);
+            this.label3.TabIndex = 201;
+            this.label3.Text = "Categoría por defecto:";
+            // 
+            // cb_categoria
+            // 
+            this.cb_categoria.FormattingEnabled = true;
+            this.cb_categoria.Location = new System.Drawing.Point(30, 337);
+            this.cb_categoria.Name = "cb_categoria";
+            this.cb_categoria.Size = new System.Drawing.Size(180, 21);
+            this.cb_categoria.TabIndex = 202;
             // 
             // AnyadirLibro
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(764, 424);
+            this.Controls.Add(this.cb_categoria);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.tv_categories);
             this.Controls.Add(this.btn_anyadirImagen);
             this.Controls.Add(this.btn_eliminar);
@@ -347,5 +369,7 @@
         private System.Windows.Forms.Button btn_eliminar;
         private System.Windows.Forms.Button btn_anyadirImagen;
         private System.Windows.Forms.TreeView tv_categories;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.ComboBox cb_categoria;
     }
 }
