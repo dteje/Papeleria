@@ -437,7 +437,7 @@ namespace Papeleria
         private double convierteStringADouble(String leido)
         {
             double precio = 0;
-            leido = leido.Replace('.', ',');
+            leido = leido.Replace(',', '.');
             try
             {
                 precio = Double.Parse(leido);
