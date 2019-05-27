@@ -14,6 +14,7 @@ namespace Papeleria
         const string BASEURL = "http://papeleriamaribel.com/api";
         const string PASS = "";
 
+        product pro;
         ProductFactory pf;
         ProductFeatureValueFactory pfvf;
         CategoryFactory cf;
@@ -199,6 +200,7 @@ namespace Papeleria
             producto.is_virtual = 0;
             producto.visibility = "both";
             producto.advanced_stock_management = 0;
+            producto.minimal_quantity = 1;
             //p.date_add = "2017-10-11 11:15:20";
             producto.id_tax_rules_group = 1;
             //p.id_shop_default = 1;
@@ -223,12 +225,21 @@ namespace Papeleria
             else producto.condition = "used";
 
         }
-        private void setCantidad() //POST CREACION
-        {
-            producto.minimal_quantity = 1;
+        private void setCantidad()
+        {            
             int cdad = 1;
             string leido = txt_cantidad.Text;
-            try { cdad = int.Parse(leido); }
+            try {                
+                cdad = int.Parse(leido);
+                long id = (long) pro.id;
+                Dictionary<String, String> dic = new Dictionary<String, String>();
+                dic.Add("id_product", id.ToString());
+                List<stock_available> lstocks = saf.GetByFilter(dic, null, null);
+                lstocks[0].quantity = cdad;
+                saf.Update(lstocks[0]);
+                setCaracteristicaISBN();
+
+            }
             catch (FormatException fe) { Console.Write("Error en setCantidad: " + fe.Message); }
 
         }
@@ -244,11 +255,12 @@ namespace Papeleria
         {
             Dictionary<String, String> diccionario = new Dictionary<string, string>();
             diccionario.Add("id_feature", "4");
-            var lista = pfvf.GetByFilter(diccionario, null, null);
+            List<product_feature_value> lista = pfvf.GetByFilter(diccionario, null, null);
             product_feature_value feature = new product_feature_value();
             feature.value.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.language((long)3, txt_isbn.Text));
             //long idISBN = (long)newISBN.id_feature;
             lista.Add(feature);
+            pfvf.Update(lista[0]);
         }
         private void setCaracteristicaEditorial()
         {
@@ -290,7 +302,6 @@ namespace Papeleria
             feature.value.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.language((long)3, cb_idioma.Text));
             lista.Add(feature);
         }
-
         private void setCategorias()
         {
             //getCheckedNodes(tv_categories.Nodes);
@@ -304,9 +315,6 @@ namespace Papeleria
             producto.id_category_default = Int64.Parse(cb_categoria.Text.Substring(0, 2));
 
         }
-
-
-
         private void setDescripcion()
         {
             string descripcion = mejoraNombre(rtxt_descripcion.Text);
@@ -316,17 +324,18 @@ namespace Papeleria
         {
             foreach (String url in imagenes)
             {
-                imageFactory.AddProductImage((long)producto.id, url);
+                imageFactory.AddProductImage((long)pro.id, url);
             }
         }   
         private void updateProduct()
         {
+            //Atributos y características que se actualizan tras crear el producto
             setCantidad();
             setImagenes();
         }  
         private Boolean checkFields()
         {
-            return true;
+            return true; //TODO
         }
         private void cb_idioma_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -339,9 +348,9 @@ namespace Papeleria
             if (checkFields())
             {
                 createProduct();
-                pf.Add(producto);
+                pro = pf.Add(producto);
                 updateProduct();
-                System.Windows.Forms.MessageBox.Show("¡Producto subido!");
+                 System.Windows.Forms.MessageBox.Show("¡Producto subido!");
 
 
             }
@@ -437,7 +446,7 @@ namespace Papeleria
         private double convierteStringADouble(String leido)
         {
             double precio = 0;
-            leido = leido.Replace(',', '.');
+            leido = leido.Replace(',','.'); //Cambio de , a . en MNPro
             try
             {
                 precio = Double.Parse(leido);
