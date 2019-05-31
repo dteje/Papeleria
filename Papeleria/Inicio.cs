@@ -23,5 +23,11 @@ namespace Papeleria
             f.Show();
             
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            //Form f = new AnyadirLibroLectura();
+            //f.Show();
+        }
     }
 }
