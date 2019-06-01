@@ -134,7 +134,7 @@ namespace Papeleria
             //lista[0] = root y lista[1] = home
             dic = new Dictionary<int, TreeNode>();
             var lista = cf.GetAll();
-            TreeNode home = tv_categories.Nodes.Add("1 - " + lista[1].name[0].Value);
+            TreeNode home = tv_categories.Nodes.Add("2 - " + lista[1].name[0].Value);
             dic.Add(2, home);
             foreach (category each in lista)
             {
@@ -169,11 +169,12 @@ namespace Papeleria
 
         private void btn_add_product(object sender, EventArgs e)
         {
+            flag = false;
             if (checkFields())
             {
-                createProduct();
-                pro = pf.Add(producto);
-                updateProduct();
+                if (!flag) createProduct();
+                if (!flag) pro = pf.Add(producto);
+                if (!flag) updateProduct();
             }
         }
 
@@ -181,15 +182,15 @@ namespace Papeleria
         private void createProduct()
         {
             producto = new product();
-            setISBN();
-            setName();
-            setTags();
-            setMetaData();
-            setExtras();
-            setPrecio();
-            setEstado();
-            setCategorias();
-            setDescripcion();
+            if (!flag) setISBN();
+            if (!flag) setName();
+            if (!flag) setTags();
+            if (!flag) setMetaData();
+            if (!flag) setExtras();
+            if (!flag) setPrecio();
+            if (!flag) setEstado();
+            if (!flag) setCategorias();
+            if (!flag) setDescripcion();
         }
         private void setISBN()
         {
@@ -197,6 +198,7 @@ namespace Papeleria
         }
         private void setName()
         {
+            Console.WriteLine("asd");
             string nombre = mejoraNombre(txt_nombre.Text);
             producto.name.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.language((long)3, nombre));
             producto.meta_title.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.language((long)3, nombre));
@@ -232,7 +234,7 @@ namespace Papeleria
             producto.visibility = "both";
             producto.advanced_stock_management = 0;
             producto.minimal_quantity = 1;
-            producto.AddLinkRewrite(new Bukimedia.PrestaSharp.Entities.AuxEntities.language((long)3, producto.name[0].Value));
+            if(!flag) producto.AddLinkRewrite(new Bukimedia.PrestaSharp.Entities.AuxEntities.language((long)3, producto.name[0].Value));
             //p.date_add = "2017-10-11 11:15:20";
             producto.id_tax_rules_group = 1;
             //p.id_shop_default = 1;
@@ -263,7 +265,7 @@ namespace Papeleria
             {
                 producto.associations.categories.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.category(cat));
             }
-            //producto.associations.categories.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.category(1));
+            //producto.associations.categories.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.category(1));            
             producto.id_category_default = Int64.Parse(cb_categoria.Text.Substring(0, 2));
 
         }
@@ -393,9 +395,17 @@ namespace Papeleria
 
         private string mejoraNombre(String n)
         {
-            string primera = "" + n[0];
-            primera = primera.ToUpper();
-            return primera + n.Substring(1);
+            try{
+                string primera = "" + n[0];
+                primera = primera.ToUpper();
+                return primera + n.Substring(1);
+            } catch(Exception e) {
+                flag = true;
+                Console.WriteLine(e.Message);
+                System.Windows.Forms.MessageBox.Show("El nombre no es correcto", "Ups!");
+                return null;
+                
+            }
         }
         private double convierteStringADouble(String leido)
         {
@@ -407,9 +417,15 @@ namespace Papeleria
             }
             catch (FormatException fe)
             {
-                Console.Write("Error en convierteStringADouble: " + fe.Message);
+                flag = true;
+                System.Windows.Forms.MessageBox.Show("El precio no es correcto.", "Ups!");
                 return -1;
 
+            }
+            if(precio == 0)
+            {
+                flag = true;
+                System.Windows.Forms.MessageBox.Show("El precio no puede ser nulo.", "Ups!");
             }
             return precio;
         }
@@ -459,7 +475,7 @@ namespace Papeleria
                     } else
                     {
                         System.Windows.Forms.MessageBox.Show("Una o varias imágenes superan el tamaño máximo permitido (3MB)", "Ups!");
-                        
+
 
                     }
                 }
@@ -469,13 +485,17 @@ namespace Papeleria
         }
         private void btn_del_img(object sender, EventArgs e)
         {
-            if (lb_imagenes.SelectedItems != null)
+            if (lb_imagenes.SelectedItems.Count > 0)
             {
                 foreach (String each in lb_imagenes.SelectedItems)
                 {
                     imagenes.Remove(each);
                 }
                 updListaImagenes();
+            }
+            else
+            {
+                System.Windows.Forms.MessageBox.Show("Debes seleccionar al menos una imagen para poder eliminarla", "Ups!");
             }
         }
         private void updListaImagenes()
