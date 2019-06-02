@@ -56,6 +56,7 @@
             this.tv_categories = new System.Windows.Forms.TreeView();
             this.label3 = new System.Windows.Forms.Label();
             this.cb_categoria = new System.Windows.Forms.ComboBox();
+            this.button3 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label15
@@ -242,17 +243,18 @@
             // 
             this.txt_nombre.Location = new System.Drawing.Point(157, 8);
             this.txt_nombre.Name = "txt_nombre";
-            this.txt_nombre.Size = new System.Drawing.Size(600, 20);
+            this.txt_nombre.Size = new System.Drawing.Size(555, 20);
             this.txt_nombre.TabIndex = 0;
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(410, 416);
+            this.button2.Location = new System.Drawing.Point(729, 11);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(62, 39);
-            this.button2.TabIndex = 1;
+            this.button2.TabIndex = 95;
             this.button2.Text = "Fake data";
             this.button2.UseVisualStyleBackColor = true;
+            this.button2.Visible = false;
             this.button2.Click += new System.EventHandler(this.btn_fakedata);
             // 
             // btn_eliminar
@@ -300,11 +302,24 @@
             this.cb_categoria.Size = new System.Drawing.Size(233, 21);
             this.cb_categoria.TabIndex = 120;
             // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(12, 416);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(144, 38);
+            this.button3.TabIndex = 202;
+            this.button3.Text = "Atrás";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.btn_back);
+            // 
             // AnyadirLibro
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScroll = true;
+            this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(805, 459);
+            this.Controls.Add(this.button3);
             this.Controls.Add(this.cb_categoria);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.tv_categories);
@@ -370,5 +385,6 @@
         private System.Windows.Forms.TreeView tv_categories;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ComboBox cb_categoria;
+        private System.Windows.Forms.Button button3;
     }
 }

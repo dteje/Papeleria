@@ -5,6 +5,7 @@ using Bukimedia.PrestaSharp.Entities;
 using Bukimedia.PrestaSharp.Factories;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace Papeleria
 {
@@ -21,8 +22,9 @@ namespace Papeleria
         StockAvailableFactory saf;
         ImageFactory imageFactory;
         ProductFeatureFactory pff;
+        TagFactory tf;
 
-        Boolean flag;
+        Boolean ok;
 
         product producto;
 
@@ -33,7 +35,7 @@ namespace Papeleria
         Dictionary<string, long> dicIdioma, dicEditorial, dicCurso, dicEstado;
 
         public AnyadirLibro()
-        {          
+        {
             InitializeComponent();
             saf = new StockAvailableFactory(BASEURL, KEYStocks, PASS);
             pf = new ProductFactory(BASEURL, KEYProds, PASS);
@@ -41,8 +43,9 @@ namespace Papeleria
             cf = new CategoryFactory(BASEURL, KEYCategories, PASS);
             imageFactory = new ImageFactory(BASEURL, KEYImages, PASS);
             pff = new ProductFeatureFactory(BASEURL, KEYFeatures, PASS);
+            tf = new TagFactory(BASEURL, KEYTags, PASS);
 
-            flag = false;
+            ok = true;
 
             imagenes = new List<String>();
             checkedCategories = new List<long>();
@@ -169,63 +172,103 @@ namespace Papeleria
 
         private void btn_add_product(object sender, EventArgs e)
         {
-            flag = false;
-            if (checkFields())
-            {
-                if (!flag) createProduct();
-                if (!flag) pro = pf.Add(producto);
-                if (!flag) updateProduct();
-            }
+            ok = true;
+            if (ok) createProduct();
+            if (ok && checkUpdateFieldsBeforeAdd()) pro = pf.Add(producto);
+            if (ok) updateProduct();
         }
 
-        //Todo lo que se hace antes de subir el producto
+        //lo que se hace antes de subir el producto
         private void createProduct()
         {
             producto = new product();
-            if (!flag) setISBN();
-            if (!flag) setName();
-            if (!flag) setTags();
-            if (!flag) setMetaData();
-            if (!flag) setExtras();
-            if (!flag) setPrecio();
-            if (!flag) setEstado();
-            if (!flag) setCategorias();
-            if (!flag) setDescripcion();
-        }
-        private void setISBN()
-        {
-            producto.ean13 = txt_isbn.Text;
-        }
-        private void setName()
-        {
-            Console.WriteLine("asd");
-            string nombre = mejoraNombre(txt_nombre.Text);
-            producto.name.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.language((long)3, nombre));
-            producto.meta_title.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.language((long)3, nombre));
-            producto.meta_keywords.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.language((long)3, nombre));
-
-        }
-        private void setTags()
-        {
-            //TODO 
-            /*string[] palabras = (rtxt_descripcion.Text).Split(' ');
-            List<Bukimedia.PrestaSharp.Entities.tag> Tags = TagsController.GetPrestaSharpTagsFromSendProduct(product, this.CatalogMemory);
-            foreach (string each in palabras)
+            while (ok)
             {
-                producto.associations.tags.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.tag())
+                if (!setISBN()) break;
+                if (!setName()) break;
+                if (!setTags()) break;
+                if (!setMetaData()) break;
+                if (!setExtras()) break;
+                if (!setPrecio()) break;
+                if (!setEstado()) break;
+                if (!setCategorias()) break;
+                if (!setDescripcion()) break;
+                break;
+            }
+        }
+        private Boolean setISBN()
+        {
+            try
+            {
+                producto.ean13 = txt_isbn.Text;
+                return true;
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show("El ISBN no es correcto.", "Ups!");
+                ok = false;
+                return false;
+            }
+        }
+        private Boolean setName()
+        {
+            try
+            {
+                string nombre = mejoraNombre(txt_nombre.Text);
+                producto.name.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.language((long)3, nombre));
+                producto.meta_title.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.language((long)3, nombre));
+                producto.meta_keywords.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.language((long)3, nombre));
+                return true;
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show("1 - El nombre no es correcto.", "Ups!");
+                ok = false;
+                return false;
             }
 
-            foreach (Bukimedia.PrestaSharp.Entities.tag tag in Tags)
+        }
+        private Boolean setTags()
+        {
+            try
             {
+                string[] palabras = (txt_nombre.Text.Split(' '));
+                foreach (string palabra in palabras)
+                {
+                    tag tag = new tag();
+                    tag.id_lang = 3;
+                    tag.name = palabra;
+                    tag = tf.Add(tag);
+                    producto.associations.tags.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.tag((long)tag.id));
+                }
+
+                /*string[] palabras = (rtxt_descripcion.Text).Split(' ');
+                List<Bukimedia.PrestaSharp.Entities.tag> Tags = TagsController.GetPrestaSharpTagsFromSendProduct(product, this.CatalogMemory);
+                foreach (string each in palabras)
+                {
+                    producto.associations.tags.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.tag())
+                }
+
+                foreach (Bukimedia.PrestaSharp.Entities.tag tag in Tags)
+                {
 
 
-            }*/
-        } //TODO
-        private void setMetaData()
+                }*/
+                return true;
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show("El nombre no es correcto. (Error: etiquetas)", "Ups!");
+                ok = false;
+                return false;
+            }
+        }
+        private Boolean setMetaData()
         {
             //https://github.com/Bukimedia/PrestaSharp/issues/95
+            return true;
         }
-        private void setExtras()
+        private Boolean setExtras()
         {
             producto.active = 1;
             producto.show_price = 1;
@@ -234,58 +277,111 @@ namespace Papeleria
             producto.visibility = "both";
             producto.advanced_stock_management = 0;
             producto.minimal_quantity = 1;
-            if(!flag) producto.AddLinkRewrite(new Bukimedia.PrestaSharp.Entities.AuxEntities.language((long)3, producto.name[0].Value));
+            try
+            {
+                if (ok) producto.AddLinkRewrite(new Bukimedia.PrestaSharp.Entities.AuxEntities.language((long)3, producto.name[0].Value));
+            }
+            catch (Exception e)
+            {
+                ok = false;
+            }
+
             //p.date_add = "2017-10-11 11:15:20";
             producto.id_tax_rules_group = 1;
             //p.id_shop_default = 1;
             //MiArticulo.price = Convert.ToDecimal(10.99);
             //lenguajes.Value = "Name";
             //p.AddLinkRewrite(Lenguaje);
+            return ok;
 
         }
-        private void setPrecio()
+        private Boolean setPrecio()
         {
-            double ptax = convierteStringADouble(txt_precio.Text);
-            double p = Math.Round(ptax / 1.21, 2);
-            producto.price = Convert.ToDecimal(p);
-            producto.id_tax_rules_group = 4;
-            //IVA 4 = 21%, IVA 8 = 4%
-        }
-        private void setEstado()
-        {
-            //new, used, refurbished
-            string seleccion = cb_estado.SelectedItem.ToString();
-            if (seleccion == "Nuevo") producto.condition = "new";
-            else producto.condition = "used";
-
-        }
-        private void setCategorias()
-        {
-            foreach (long cat in checkedCategories)
+            try
             {
-                producto.associations.categories.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.category(cat));
+                double ptax = convierteStringADouble(txt_precio.Text);
+                double p = Math.Round(ptax / 1.21, 2);
+                producto.price = Convert.ToDecimal(p);
+                producto.id_tax_rules_group = 4;
+                //IVA 4 = 21%, IVA 8 = 4%
+                return true;
             }
-            //producto.associations.categories.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.category(1));            
-            producto.id_category_default = Int64.Parse(cb_categoria.Text.Substring(0, 2));
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show("El precio no es correcto.", "Ups!");
+                ok = false;
+                return false;
+            }
+        }
+        private Boolean setEstado()
+        {
+            try
+            {
+                string seleccion = cb_estado.SelectedItem.ToString();
+                if (seleccion == "Nuevo") producto.condition = "new";
+                else producto.condition = "used";
+                return true;
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show("El estado no es correcto.", "Ups!");
+                ok = false;
+                return false;
+            }
+            //new, used, refurbished
+
 
         }
-        private void setDescripcion()
+        private Boolean setCategorias()
         {
-            string descripcion = mejoraNombre(rtxt_descripcion.Text);
-            producto.description_short.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.language((long)3, descripcion));
+            try
+            {
+                foreach (long cat in checkedCategories)
+                {
+                    producto.associations.categories.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.category(cat));
+                }
+                //producto.associations.categories.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.category(1));            
+                producto.id_category_default = Int64.Parse(cb_categoria.Text.Substring(0, 2));
+                return true;
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show("Parece que hay un problema con las categorías.", "Ups!");
+                ok = false;
+                return false;
+            }
+        }
+        private Boolean setDescripcion()
+        {
+            try
+            {
+                string descripcion = mejoraNombre(rtxt_descripcion.Text);
+                producto.description_short.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.language((long)3, descripcion));
+                return true;
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show("La descripción no es correcta.", "Ups!");
+                ok = false;
+                return false;
+            }
         }
 
         //Atributos y características que se actualizan tras crear el producto
         private void updateProduct()
         {
-            setCantidad();
-            setImagenes();
-            setCaracteristicas();
+            while (ok)
+            {
+                if (!setCantidad()) break;
+                if (!setImagenes()) break;
+                if (!setCaracteristicas()) break;
+                System.Windows.Forms.MessageBox.Show("¡Producto subido!", "Perfecto");
+                break;
+            }
 
-            System.Windows.Forms.MessageBox.Show("¡Producto subido!", "Perfecto");
 
         }
-        private void setCantidad()
+        private Boolean setCantidad()
         {
             int cdad = 1;
             string leido = txt_cantidad.Text;
@@ -298,113 +394,215 @@ namespace Papeleria
                 List<stock_available> lstocks = saf.GetByFilter(dic, null, null);
                 lstocks[0].quantity = cdad;
                 saf.Update(lstocks[0]);
-
+                return true;
             }
-            catch (FormatException fe) { Console.Write("Error en setCantidad: " + fe.Message); }
-
-        }
-        private void setImagenes()
-        {
-            foreach (String url in imagenes)
+            catch (FormatException fe)
             {
-
-                imageFactory.AddProductImage((long)pro.id, url);
-                //TODO: Handle large imgs
+                System.Windows.Forms.MessageBox.Show("Error en la cantidad", "Ups");
+                ok = false;
+                return false;
             }
-        }
-        private void setCaracteristicas()
-        {
-            setCaracteristicaISBN();
-            setCaracteristicaEditorial();
-            setCaracteristicaCurso();
-            setCaracteristicaEstado();
-            setCaracteristicaIdioma();
-        }
-        private void setCaracteristicaISBN()
-        {
-            product_feature_value feature = new product_feature_value();
-            feature.value.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.language((long)3, txt_isbn.Text));
-            feature.id_feature = 4;
-
-            feature = pfvf.Add(feature);
-
-            Bukimedia.PrestaSharp.Entities.AuxEntities.product_feature pf1 = new Bukimedia.PrestaSharp.Entities.AuxEntities.product_feature();
-            pf1.id = 4;
-            pf1.id_feature_value = (long)feature.id;
-            pro.associations.product_features.Add(pf1);
-            pf.Update(pro);
 
         }
-        private void setCaracteristicaEditorial()
+        private Boolean setImagenes()
         {
-            if (!dicEditorial.TryGetValue(cb_editorial.Text, out long rep))
+            try
             {
-                product_feature_value v = new product_feature_value();
-                v.value.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.language((long)3, cb_editorial.Text));
-                v.id_feature = 5;
-                v = pfvf.Add(v);
-                rep = (long)v.id;
-            }
-            Bukimedia.PrestaSharp.Entities.AuxEntities.product_feature pf1 = new Bukimedia.PrestaSharp.Entities.AuxEntities.product_feature();
-            pf1.id = 5;
-            pf1.id_feature_value = rep;
-            pro.associations.product_features.Add(pf1);
-            pf.Update(pro);
-        }
-        private void setCaracteristicaCurso()
-        {
-            if (!dicCurso.TryGetValue(cb_curso.Text, out long rep))
-            {
-                product_feature_value v = new product_feature_value();
-                v.value.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.language((long)3, cb_curso.Text));
-                v.id_feature = 6;
-                v = pfvf.Add(v);
-                rep = (long)v.id;
-            }
-            Bukimedia.PrestaSharp.Entities.AuxEntities.product_feature pf1 = new Bukimedia.PrestaSharp.Entities.AuxEntities.product_feature();
-            pf1.id = 6;
-            pf1.id_feature_value = rep;
-            pro.associations.product_features.Add(pf1);
-            pf.Update(pro);
-        }
-        private void setCaracteristicaEstado()
-        {
-            long rep = dicEstado[cb_estado.Text];
-            Bukimedia.PrestaSharp.Entities.AuxEntities.product_feature pf1 = new Bukimedia.PrestaSharp.Entities.AuxEntities.product_feature();
-            pf1.id = 10;
-            pf1.id_feature_value = rep;
-            pro.associations.product_features.Add(pf1);
-            pf.Update(pro);
-        }
-        private void setCaracteristicaIdioma()
-        {
-            Bukimedia.PrestaSharp.Entities.AuxEntities.product_feature pf1 = new Bukimedia.PrestaSharp.Entities.AuxEntities.product_feature();
-            pf1.id = 11;
-            String key = cb_idioma.Text.ToString();
-            pf1.id_feature_value = (long)dicIdioma[key];
-            pro.associations.product_features.Add(pf1);
-            pf.Update(pro);
-        }
+                foreach (String url in imagenes)
+                {
 
+                    imageFactory.AddProductImage((long)pro.id, url);
+                }
+                return true;
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show("Error en las imágenes", "Ups!");
+                ok = false;
+                return false;
+            }
+
+        }
+        private Boolean setCaracteristicas()
+        {
+            while (ok)
+            {
+                if (!setCaracteristicaISBN()) break;
+                if (!setCaracteristicaEditorial()) break;
+                if (!setCaracteristicaCurso()) break;
+                if (!setCaracteristicaEstado()) break;
+                if (!setCaracteristicaIdioma()) break;
+                break;
+            }
+            return ok;
+        }
+        private Boolean setCaracteristicaISBN()
+        {
+            try
+            {
+                product_feature_value feature = new product_feature_value();
+                feature.value.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.language((long)3, txt_isbn.Text));
+                feature.id_feature = 4;
+
+                feature = pfvf.Add(feature);
+
+                Bukimedia.PrestaSharp.Entities.AuxEntities.product_feature pf1 = new Bukimedia.PrestaSharp.Entities.AuxEntities.product_feature();
+                pf1.id = 4;
+                pf1.id_feature_value = (long)feature.id;
+                pro.associations.product_features.Add(pf1);
+                pf.Update(pro);
+                return true;
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show("Error en el ISBN", "Ups!");
+                ok = false;
+                return false;
+            }
+
+        }
+        private Boolean setCaracteristicaEditorial()
+        {
+            try
+            {
+                if (!dicEditorial.TryGetValue(cb_editorial.Text, out long rep))
+                {
+                    product_feature_value v = new product_feature_value();
+                    v.value.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.language((long)3, cb_editorial.Text));
+                    v.id_feature = 5;
+                    v = pfvf.Add(v);
+                    rep = (long)v.id;
+                }
+                Bukimedia.PrestaSharp.Entities.AuxEntities.product_feature pf1 = new Bukimedia.PrestaSharp.Entities.AuxEntities.product_feature();
+                pf1.id = 5;
+                pf1.id_feature_value = rep;
+                pro.associations.product_features.Add(pf1);
+                pf.Update(pro);
+                return true;
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show("Error en la editorial", "Ups!");
+                ok = false;
+                return false;
+            }
+        }
+        private Boolean setCaracteristicaCurso()
+        {
+            try
+            {
+                if (!dicCurso.TryGetValue(cb_curso.Text, out long rep))
+                {
+                    product_feature_value v = new product_feature_value();
+                    v.value.Add(new Bukimedia.PrestaSharp.Entities.AuxEntities.language((long)3, cb_curso.Text));
+                    v.id_feature = 6;
+                    v = pfvf.Add(v);
+                    rep = (long)v.id;
+                }
+                Bukimedia.PrestaSharp.Entities.AuxEntities.product_feature pf1 = new Bukimedia.PrestaSharp.Entities.AuxEntities.product_feature();
+                pf1.id = 6;
+                pf1.id_feature_value = rep;
+                pro.associations.product_features.Add(pf1);
+                pf.Update(pro);
+                return true;
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show("Error en el curso", "Ups!");
+                ok = false;
+                return false;
+            }
+        }
+        private Boolean setCaracteristicaEstado()
+        {
+            try
+            {
+                long rep = dicEstado[cb_estado.Text];
+                Bukimedia.PrestaSharp.Entities.AuxEntities.product_feature pf1 = new Bukimedia.PrestaSharp.Entities.AuxEntities.product_feature();
+                pf1.id = 10;
+                pf1.id_feature_value = rep;
+                pro.associations.product_features.Add(pf1);
+                pf.Update(pro);
+                return true;
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show("Error en el estado", "Ups!");
+                ok = false;
+                return false;
+            }
+        }
+        private Boolean setCaracteristicaIdioma()
+        {
+            try
+            {
+                Bukimedia.PrestaSharp.Entities.AuxEntities.product_feature pf1 = new Bukimedia.PrestaSharp.Entities.AuxEntities.product_feature();
+                pf1.id = 11;
+                String key = cb_idioma.Text.ToString();
+                pf1.id_feature_value = (long)dicIdioma[key];
+                pro.associations.product_features.Add(pf1);
+                pf.Update(pro);
+                return true;
+            }
+            catch (Exception e)
+            {
+                ok = false;
+                System.Windows.Forms.MessageBox.Show("Error en el idioma", "Ups!");
+                return false;
+            }
+        }
 
         //Aux methods
-        private Boolean checkFields()
+        private Boolean checkUpdateFieldsBeforeAdd()
         {
-            return true; //TODO
-        } //TODO
+            //Comprueba si las características, cantidad e imágenes están ok antes de crear el producto
+            if (cb_curso.Text.Length == 0)
+            {
+                ok = false;
+                System.Windows.Forms.MessageBox.Show("Error en el curso", "Ups!");
+                return false;
+            }
+            if (cb_editorial.Text.Length == 0)
+            {
+                ok = false;
+                System.Windows.Forms.MessageBox.Show("Error en la editorial", "Ups!");
+                return false;
+            }
+            try
+            {
+                int cdad = int.Parse(txt_cantidad.Text);
+            }
+            catch (Exception e)
+            {
+                ok = false;
+                System.Windows.Forms.MessageBox.Show("Error en la cantidad", "Ups!");
+                return false;
+            }
+            try
+            {
+                if (txt_isbn.Text.Length == 0) throw new Exception();
+                return true;
+            }
+            catch (Exception e)
+            {
+                System.Windows.Forms.MessageBox.Show("Error en el ISBN", "Ups!");
+                ok = false;
+                return false;
+            }
+        }
 
         private string mejoraNombre(String n)
         {
-            try{
+            try
+            {
                 string primera = "" + n[0];
                 primera = primera.ToUpper();
                 return primera + n.Substring(1);
-            } catch(Exception e) {
-                flag = true;
-                Console.WriteLine(e.Message);
-                System.Windows.Forms.MessageBox.Show("El nombre no es correcto", "Ups!");
-                return null;
-                
+            }
+            catch (Exception e)
+            {
+                ok = false;
+                throw e;
             }
         }
         private double convierteStringADouble(String leido)
@@ -417,14 +615,14 @@ namespace Papeleria
             }
             catch (FormatException fe)
             {
-                flag = true;
+                ok = false;
                 System.Windows.Forms.MessageBox.Show("El precio no es correcto.", "Ups!");
                 return -1;
 
             }
-            if(precio == 0)
+            if (precio == 0)
             {
-                flag = true;
+                ok = false;
                 System.Windows.Forms.MessageBox.Show("El precio no puede ser nulo.", "Ups!");
             }
             return precio;
@@ -451,6 +649,12 @@ namespace Papeleria
 
 
         }
+
+        private void btn_back(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
         //Imagenes
         private void btn_add_img(object sender, EventArgs e)
         {
@@ -472,7 +676,8 @@ namespace Papeleria
                         //file = dialog.FileName;
                         imagenes.Add(f);
                         updListaImagenes();
-                    } else
+                    }
+                    else
                     {
                         System.Windows.Forms.MessageBox.Show("Una o varias imágenes superan el tamaño máximo permitido (3MB)", "Ups!");
 
@@ -516,7 +721,6 @@ namespace Papeleria
             txt_isbn.Text = "1234567890123";
             rtxt_descripcion.Text = "Parrafo1.\nParrafo2";
         }
-
 
     }
 }
