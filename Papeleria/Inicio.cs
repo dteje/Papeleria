@@ -19,7 +19,7 @@ namespace Papeleria
 
         private void btn_anyadir_Click(object sender, EventArgs e)
         {
-            Form f = new AnyadirLibro();
+            Form f = new AnyadirLibroTexto();
             //this.Hide();
             f.Show();
             //f.FormClosing += Frm2_Closing;
@@ -28,8 +28,8 @@ namespace Papeleria
 
         private void button1_Click(object sender, EventArgs e)
         {
-            //Form f = new AnyadirLibroLectura();
-            //f.Show();
+            Form f = new AnyadirLibroLectura();
+            f.Show();
         }
         private void Frm2_Closing(object sender, FormClosingEventArgs e)
         {

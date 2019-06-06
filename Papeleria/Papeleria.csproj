@@ -35,6 +35,9 @@
     <Reference Include="Bukimedia.PrestaSharp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Bukimedia.PrestaSharp.1.157\lib\Bukimedia.PrestaSharp.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="RestSharp, Version=105.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\RestSharp.105.1.0\lib\net452\RestSharp.dll</HintPath>
     </Reference>
@@ -44,8 +47,8 @@
     <Reference Include="System.Data.Entity" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
-    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net461\System.ValueTuple.dll</HintPath>
+    <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.5.0\lib\net461\System.ValueTuple.dll</HintPath>
     </Reference>
     <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
@@ -59,11 +62,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AnyadirLibro.cs">
+    <Compile Include="AnyadirLibroLectura.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="AnyadirLibro.Designer.cs">
-      <DependentUpon>AnyadirLibro.cs</DependentUpon>
+    <Compile Include="AnyadirLibroLectura.Designer.cs">
+      <DependentUpon>AnyadirLibroLectura.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AnyadirLibroTexto.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AnyadirLibroTexto.Designer.cs">
+      <DependentUpon>AnyadirLibroTexto.cs</DependentUpon>
     </Compile>
     <Compile Include="AnyadirProducto.cs">
       <SubType>Form</SubType>
@@ -71,17 +80,22 @@
     <Compile Include="AnyadirProducto.Designer.cs">
       <DependentUpon>AnyadirProducto.cs</DependentUpon>
     </Compile>
-    <Compile Include="Keys.cs" />
     <Compile Include="Inicio.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Inicio.Designer.cs">
       <DependentUpon>Inicio.cs</DependentUpon>
     </Compile>
+    <Compile Include="Keys.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="AnyadirLibro.resx">
-      <DependentUpon>AnyadirLibro.cs</DependentUpon>
+    <EmbeddedResource Include="AnyadirLibroLectura.resx">
+      <DependentUpon>AnyadirLibroLectura.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AnyadirLibroTexto.resx">
+      <DependentUpon>AnyadirLibroTexto.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="AnyadirProducto.resx">
       <DependentUpon>AnyadirProducto.cs</DependentUpon>
@@ -111,6 +125,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="styleControles.css" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

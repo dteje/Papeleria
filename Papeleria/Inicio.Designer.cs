@@ -60,7 +60,7 @@
             this.Controls.Add(this.button1);
             this.Controls.Add(this.btn_anyadir);
             this.Name = "Inicio";
-            this.Text = "Form1";
+            this.Text = "Papelería Maribel - Gestión web";
             this.ResumeLayout(false);
 
         }
